@@ -1,5 +1,8 @@
 USE projects;
 
+-- data cleaning and modification --
+
+
 -- inspecting the table --
 SELECT COUNT(*)
 FROM telco_customers_churn;
@@ -31,7 +34,7 @@ ADD COLUMN tenure_categories VARCHAR(255) NULL;
 WITH ranked_tenure AS (
     SELECT
         tenure,
-        PERCENT_RANK() OVER ( ORDER BY tenure) AS ranking
+        PERCENT_RANK() OVER ( ORDER BY tenure ) AS ranking
     FROM telco_customers_churn
 ),
 percentiles AS ( SELECT
@@ -80,11 +83,71 @@ SET total_charges = monthly_charges
 WHERE customer_id = '4472-LVYGI';
 
 
+
+-- verifying update for customer 4472-LVYGI
 SELECT customer_id,
        total_charges,
        monthly_charges
     FROM telco_customers_churn
-LIMIT 489;
+    WHERE customer_id = '4472-LVYGI'
+LIMIT 1;
 
+
+-- inspecting other columns --
+SELECT
+streaming_movies,
+streaming_tv,
+internet_service,
+tech_support,
+online_backup,
+online_security
+
+FROM telco_customers_churn;
+
+
+
+ALTER TABLE telco_customers_churn
+ADD COLUMN churn_status INT AFTER churn;
+
+-- updating churn as Yes = 1, No = 0 --
+UPDATE telco_customers_churn
+SET churn_status = CASE
+    WHEN churn =  'No' THEN 0
+    WHEN  churn = 'Yes' THEN 1
+END;
+
+
+ALTER TABLE telco_customers_churn
+ADD COLUMN streaming_movies_status INT AFTER streaming_movies;
+
+UPDATE telco_customers_churn
+SET streaming_movies_status = CASE
+WHEN streaming_movies = 'Yes' THEN 1
+WHEN streaming_movies = 'No' OR
+     streaming_movies = 'No internet service' THEN 0
+END;
+
+
+-- verifying updates --
+
+SELECT streaming_movies,
+    streaming_movies_status
+FROM telco_customers_churn;
+
+
+ALTER TABLE telco_customers_churn
+ADD COLUMN streaming_tv_status INT AFTER streaming_tv;
+
+UPDATE telco_customers_churn
+SET streaming_tv_status = CASE
+WHEN streaming_tv = 'Yes' THEN 1
+WHEN streaming_tv = 'No' OR
+     streaming_tv = 'No internet service' THEN 0
+END;
+
+-- verifying update --
+SELECT streaming_tv,
+    streaming_tv_status
+FROM telco_customers_churn;
 
 
