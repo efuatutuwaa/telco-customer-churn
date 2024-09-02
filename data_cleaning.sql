@@ -84,7 +84,6 @@ SET total_charges = monthly_charges
 WHERE customer_id = '4472-LVYGI';
 
 
-
 -- verifying update for customer 4472-LVYGI
 SELECT customer_id,
        total_charges,
@@ -92,6 +91,36 @@ SELECT customer_id,
     FROM telco_customers_churn
     WHERE customer_id = '4472-LVYGI'
 LIMIT 1;
+
+
+
+
+-- found some discrepancies for total and monthly charges for some customers --
+
+SELECT tenure,
+       tenure_categories,
+    monthly_charges,
+    total_charges
+FROM telco_customers_churn
+WHERE total_charges < monthly_charges;
+
+
+-- update total_charges with monthly charges for such discrepancies
+
+UPDATE telco_customers_churn
+SET total_charges = monthly_charges
+WHERE total_charges < monthly_charges;
+
+-- verifying the updates --
+
+SELECT tenure,
+       tenure_categories,
+    monthly_charges,
+    total_charges
+FROM telco_customers_churn
+WHERE total_charges < monthly_charges;
+
+
 
 
 -- inspecting other columns --
