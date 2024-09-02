@@ -49,15 +49,16 @@ SELECT p25 AS 25th_percentile,
 FROM percentiles;
 
 
-
 -- updating the new column based on the analyses of the data distribution--
 UPDATE telco_customers_churn
-SET tenure_categories = CASE
-    WHEN tenure <= 9  THEN '0-9 months'
-    WHEN tenure <= 29 THEN '10-29 months'
-    WHEN tenure <= 55 THEN '30-55 months'
-ELSE '56+ months'
+    SET tenure_categories = CASE
+    WHEN tenure BETWEEN 0 AND 5   THEN '0-5 months'
+    WHEN tenure BETWEEN 6 AND 10  THEN '6-10 months'
+    WHEN tenure BETWEEN 11 AND 20 THEN '11-20 months'
+    WHEN tenure BETWEEN 21 AND 30 THEN '21-30 months'
+    WHEN tenure > 30 THEN '30+ months'
 END;
+
 
 -- verifying the update --
 SELECT customer_id,
