@@ -151,4 +151,109 @@ SELECT streaming_tv,
     streaming_tv_status
 FROM telco_customers_churn;
 
+-- adding additional columns --
+ALTER TABLE telco_customers_churn
+ADD COLUMN tech_support_status INT AFTER tech_support,
+ADD COLUMN online_backup_status INT AFTER online_backup,
+ADD COLUMN online_security_status INT AFTER online_security,
+ADD COLUMN device_protection_status INT AFTER device_protection;
 
+-- populating the additional columns --
+
+-- 1. tech_support_status --
+UPDATE telco_customers_churn
+SET tech_support_status = CASE
+WHEN tech_support = 'Yes' THEN 1
+WHEN tech_support = 'No' OR
+     tech_support = 'No internet service' THEN 0
+END;
+
+-- 2.  online_backup_status --
+UPDATE telco_customers_churn
+SET online_backup_status = CASE
+WHEN online_backup = 'Yes' THEN 1
+WHEN online_backup = 'No' OR
+     online_backup = 'No internet service' THEN 0
+END;
+
+-- 3.  online_security_status --
+UPDATE telco_customers_churn
+SET online_security_status = CASE
+WHEN online_security = 'Yes' THEN 1
+WHEN online_security = 'No' OR
+     online_security = 'No internet service' THEN 0
+END;
+
+
+-- 4. device_protection_status --
+UPDATE telco_customers_churn
+SET device_protection_status = CASE
+WHEN device_protection = 'Yes' THEN 1
+WHEN device_protection = 'No' OR
+     device_protection = 'No internet service' THEN 0
+END;
+
+
+-- verifying updates --
+SELECT  tech_support_status,
+       online_backup_status,
+       device_protection_status,
+       online_security_status
+FROM telco_customers_churn;
+
+
+-- determining the number of services each customer has --
+
+ALTER TABLE telco_customers_churn
+ADD COLUMN service_count INT;
+
+
+UPDATE telco_customers_churn
+SET service_count = online_security_status
+                    + online_backup_status
+                    + device_protection_status
+                    + tech_support_status
+                    + streaming_tv_status
+                    + streaming_movies_status;
+
+
+-- verifying updates --
+SELECT
+    customer_id,
+    service_count
+FROM telco_customers_churn
+# WHERE customer_id ='9237-HQITU'
+LIMIT 100;
+
+
+-- selecting the max and min number of services to determine service labeling --
+
+SELECT MAX(service_count) AS max_num,
+       MIN(service_count) AS min_num
+FROM telco_customers_churn;
+
+-- applying  labels to service_counts --
+
+ALTER TABLE telco_customers_churn
+ADD COLUMN service_count_label VARCHAR(10);
+
+
+UPDATE telco_customers_churn
+SET service_count_label = CASE
+WHEN service_count = 1 THEN 'One'
+WHEN service_count = 2 THEN 'Two'
+WHEN service_count = 3 THEN 'Three'
+WHEN service_count = 4 THEN 'Four'
+WHEN service_count = 5 THEN 'Five'
+WHEN service_count = 6 THEN 'Six'
+ELSE 'None'
+END;
+
+
+-- verifying the update --
+SELECT service_count,
+       service_count_label
+FROM telco_customers_churn;
+
+
+-- end of data cleaning  😁 --
