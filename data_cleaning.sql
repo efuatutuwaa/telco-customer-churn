@@ -121,6 +121,28 @@ FROM telco_customers_churn
 WHERE total_charges < monthly_charges;
 
 
+-- checking out null values for total_charges --
+SELECT monthly_charges,
+    total_charges
+FROM telco_customers_churn
+WHERE total_charges IS NULL;
+
+
+-- updating null values with monthly charges --
+
+UPDATE telco_customers_churn
+SET total_charges = monthly_charges
+WHERE total_charges IS NULL ;
+
+
+-- verifying updates --
+
+SELECT monthly_charges,
+    total_charges
+FROM telco_customers_churn
+WHERE total_charges IS NULL;
+
+
 
 
 -- inspecting other columns --
